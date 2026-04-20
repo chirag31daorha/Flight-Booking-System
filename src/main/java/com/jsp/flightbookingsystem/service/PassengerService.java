@@ -2,6 +2,7 @@ package com.jsp.flightbookingsystem.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,18 +27,21 @@ public class PassengerService {
 	@Autowired
 	private FlightDao flightDao;
 	public ResponseEntity<ResponseStructure<Passenger>> addPassenger(Passenger passenger, Integer bookingId){
-          Booking booking = bookingDao.getBookingById(bookingId);
-          if (booking == null) {
+          Optional<Booking> opt = bookingDao.getBookingById(bookingId);
+          if (opt.isEmpty()) {
             throw new IdNotFoundException("Booking not found with id: " + bookingId);
           }
-          passenger.setBooking(booking);
-          booking.getPassengers().add(passenger);
-          Passenger savedPassenger=passengerDao.addPassenger(passenger);
-          ResponseStructure<Passenger> response = new ResponseStructure<>();
-          response.setStatusCode(HttpStatus.CREATED.value());
-          response.setMessage("Passenger saved");
-          response.setData(savedPassenger);
-		return new ResponseEntity<ResponseStructure<Passenger>>(response, HttpStatus.CREATED);
+          else {
+        	  Booking booking=opt.get();
+        	  passenger.setBooking(booking);
+              booking.getPassengers().add(passenger);
+              Passenger savedPassenger=passengerDao.addPassenger(passenger);
+              ResponseStructure<Passenger> response = new ResponseStructure<>();
+              response.setStatusCode(HttpStatus.CREATED.value());
+              response.setMessage("Passenger saved");
+              response.setData(savedPassenger);
+    		return new ResponseEntity<ResponseStructure<Passenger>>(response, HttpStatus.CREATED);
+          }
 	}
 	public ResponseEntity<ResponseStructure<List<Passenger>>> getAll(){
 		ResponseStructure<List<Passenger>> response=new ResponseStructure<List<Passenger>>();

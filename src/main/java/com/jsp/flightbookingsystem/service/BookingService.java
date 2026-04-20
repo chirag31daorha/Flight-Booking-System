@@ -17,6 +17,7 @@ import com.jsp.flightbookingsystem.entity.Flight;
 import com.jsp.flightbookingsystem.entity.Passenger;
 import com.jsp.flightbookingsystem.entity.Payment;
 import com.jsp.flightbookingsystem.exception.IdNotFoundException;
+import com.jsp.flightbookingsystem.repository.BookingRepository;
 import com.jsp.flightbookingsystem.repository.FlightReopsitory;
 
 import jakarta.transaction.Transactional;
@@ -59,11 +60,18 @@ public class BookingService {
 		return new ResponseEntity<ResponseStructure<List<Booking>>>(response, HttpStatus.OK);
 	}
 	public ResponseEntity<ResponseStructure<Booking>> getBookingById(Integer id){
-		ResponseStructure<Booking> response=new ResponseStructure<Booking>();
-		response.setStatusCode(HttpStatus.OK.value());
-		response.setMessage("Booking details for the given booking_id");
-		response.setData(bookingDao.getBookingById(id));
-		return new ResponseEntity<ResponseStructure<Booking>>(response, HttpStatus.OK);
+		Optional<Booking> opt=bookingDao.getBookingById(id);
+		if(opt.isEmpty()) {
+			throw new IdNotFoundException("Booking with id : "+id+" is not found");
+		}
+		else {
+			Booking booking =opt.get();
+			ResponseStructure<Booking> response=new ResponseStructure<Booking>();
+			response.setStatusCode(HttpStatus.OK.value());
+			response.setMessage("Booking details for the given booking_id");
+			response.setData(booking);
+			return new ResponseEntity<ResponseStructure<Booking>>(response, HttpStatus.OK);
+		}
 	}
 	public ResponseEntity<ResponseStructure<List<Booking>>> getBookingByFlight(Integer flightId){
 		ResponseStructure<List<Booking>> response=new ResponseStructure<List<Booking>>();
@@ -87,54 +95,66 @@ public class BookingService {
 		return new ResponseEntity<ResponseStructure<List<Booking>>>(response, HttpStatus.OK);
 	}
 	public ResponseEntity<ResponseStructure<Booking>> updateBooking(Booking booking){
-		ResponseStructure<Booking> response=new ResponseStructure<Booking>();
 		if(booking.getId()==null) {
-			throw new IdNotFoundException("Id need to be mention to update a record");
-		}	
-		Optional<Booking> opt=Optional.ofNullable(bookingDao.getBookingById(booking.getId()));
-		if(opt.isPresent()) {
-			response.setStatusCode(HttpStatus.OK.value());
-		    response.setMessage("Booking record is updated");
-			response.setData(bookingDao.updateBooking(booking));
-			return new  ResponseEntity<ResponseStructure<Booking>>(response, HttpStatus.OK);
+			throw new IdNotFoundException("ID cannot be null");
+		}
+		Optional<Booking> existingBooking=bookingDao.getBookingById(booking.getId());
+		if(existingBooking.isEmpty()) {
+			throw new IdNotFoundException("Booking with id mentioned not found");
 		}
 		else {
-			throw new IdNotFoundException("Id does not exist in the database");
+			ResponseStructure<Booking> response=new ResponseStructure<Booking>();
+			response.setStatusCode(HttpStatus.OK.value());
+			response.setMessage("Booking record updated");
+			response.setData(bookingDao.updateBooking(booking));
+			return new ResponseEntity<ResponseStructure<Booking>>(response, HttpStatus.OK);
 		}
+		
 	}
 	public ResponseEntity<ResponseStructure<String>> deleteBooking(Integer id){
-		ResponseStructure<String> response=new ResponseStructure<String>();
-		Optional<Booking> opt=bookingDao.deleteBooking(id);
-		if(opt.isPresent()) {
-			response.setStatusCode(HttpStatus.OK.value());
-			response.setMessage("Booking record deleted successfully");
-			response.setData("success");
+		Optional<Booking> opt=bookingDao.getBookingById(id);
+		if(opt.isEmpty()) {
+			throw new IdNotFoundException("Booking with id mentioned not found");
 		}
 		else {
-			throw new IdNotFoundException("Book record with id : "+id+" is not found ");
+			ResponseStructure<String> response=new ResponseStructure<String>();
+			bookingDao.deleteBooking(id);
+			response.setStatusCode(HttpStatus.OK.value());
+			response.setMessage("Booking Deleted successfully");
+			response.setData("Booking deleted with id : "+id);
+			return new ResponseEntity<ResponseStructure<String>>(HttpStatus.OK);
 		}
-		return new ResponseEntity<ResponseStructure<String>>(response, HttpStatus.OK);
+		
+		
 	}
 	public ResponseEntity<ResponseStructure<List<Passenger>>> getAllPassengerInABooking(Integer bookingId){
-		Booking booking=bookingDao.getBookingById(bookingId);
-		if(booking==null)
+		Optional<Booking> opt=bookingDao.getBookingById(bookingId);
+		if(opt.isEmpty()) {
 			throw new IdNotFoundException("Booking not found");
-		List<Passenger> passengers=booking.getPassengers();
-		ResponseStructure<List<Passenger>> response=new ResponseStructure<List<Passenger>>();
-		response.setStatusCode(HttpStatus.OK.value());
-		response.setMessage("Passenegrs in booking ID : "+bookingId);
-		response.setData(passengers);
-		return new ResponseEntity<ResponseStructure<List<Passenger>>>(response, HttpStatus.OK);
+		}	
+		else {
+			Booking booking=opt.get();
+		    List<Passenger> passengers=booking.getPassengers();
+		    ResponseStructure<List<Passenger>> response=new ResponseStructure<List<Passenger>>();
+		    response.setStatusCode(HttpStatus.OK.value());
+		    response.setMessage("Passenegrs in booking ID : "+bookingId);
+		    response.setData(passengers);
+		    return new ResponseEntity<ResponseStructure<List<Passenger>>>(response, HttpStatus.OK);
+		}
 	}
 	public ResponseEntity<ResponseStructure<Payment>> getPaymentDetails(Integer bookingId){
-		Booking booking=bookingDao.getBookingById(bookingId);
-		if(booking==null)
+		Optional<Booking> opt = bookingDao.getBookingById(bookingId);
+		if(opt.isEmpty()) {
 			throw new IdNotFoundException("Payment not found");
-		Payment payment=booking.getPayment();
-		ResponseStructure<Payment> response=new ResponseStructure<Payment>();
-		response.setStatusCode(HttpStatus.OK.value());
-		response.setMessage("Payment Details for bookingId : "+bookingId);
-		response.setData(payment);
-		return new ResponseEntity<ResponseStructure<Payment>>(response, HttpStatus.OK);
+		}
+		else {
+			Booking booking=opt.get();
+			Payment payment=booking.getPayment();
+			ResponseStructure<Payment> response=new ResponseStructure<Payment>();
+			response.setStatusCode(HttpStatus.OK.value());
+			response.setMessage("Payment Details for bookingId : "+bookingId);
+			response.setData(payment);
+			return new ResponseEntity<ResponseStructure<Payment>>(response, HttpStatus.OK);
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package com.jsp.flightbookingsystem.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,18 +25,21 @@ public class PaymentService {
 	@Autowired
 	private BookingDao bookingDao;
 	public ResponseEntity<ResponseStructure<Payment>> recordPayment(Payment payment, Integer bookingId){
-		Booking booking = bookingDao.getBookingById(bookingId);
-        if (booking == null) {
+		Optional<Booking> opt = bookingDao.getBookingById(bookingId);
+        if (opt.isEmpty()) {
           throw new IdNotFoundException("Booking not found with id: " + bookingId);
         }
-        payment.setBooking(booking);
-        booking.setPayment(payment);
-        Payment savedPayment=paymentDao.recordPayment(payment);
-        ResponseStructure<Payment> response = new ResponseStructure<>();
-        response.setStatusCode(HttpStatus.CREATED.value());
-        response.setMessage("Payment saved");
-        response.setData(payment);
-        return new ResponseEntity<ResponseStructure<Payment>>(HttpStatus.OK);
+        else {
+        	 Booking booking=opt.get();
+        	 payment.setBooking(booking);
+             booking.setPayment(payment);
+             Payment savedPayment=paymentDao.recordPayment(payment);
+             ResponseStructure<Payment> response = new ResponseStructure<>();
+             response.setStatusCode(HttpStatus.CREATED.value());
+             response.setMessage("Payment saved");
+             response.setData(savedPayment);
+             return new ResponseEntity<ResponseStructure<Payment>>(HttpStatus.OK);
+        }
     }
 	public ResponseEntity<ResponseStructure<List<Payment>>> getAll(){
 		ResponseStructure<List<Payment>> response=new ResponseStructure<List<Payment>>();

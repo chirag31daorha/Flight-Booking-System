@@ -30,7 +30,7 @@ public class BookingController {
 	public ResponseEntity<ResponseStructure<List<Booking>>> getAllBooking(){
 		return bookingService.getAllBookings();
 	}
-	@GetMapping("/{id}")
+	@GetMapping("/getById/{id}")
 	public ResponseEntity<ResponseStructure<Booking>> getBookingById(@PathVariable Integer id){
 		return bookingService.getBookingById(id);
 	}

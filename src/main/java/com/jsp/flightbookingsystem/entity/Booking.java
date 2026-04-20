@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -33,6 +34,7 @@ public class Booking {
 	private Payment payment;
 	@ManyToOne
 	@JoinColumn(name="flight_id")
+	@JsonIgnoreProperties({"airline", "source", "destination", "departureDateTime", "arrivalDateTime", "totalSeats", "price"})
 	private Flight flight;
 	public Integer getId() {
 		return id;

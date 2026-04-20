@@ -18,8 +18,7 @@ public class Flight {
 	private LocalDateTime departureDateTime;
 	private LocalDateTime arrivalDateTime;
 	private Integer totalSeats;
-	private 
-	Double price;
+	private Double price;
 	@OneToMany(mappedBy="flight", cascade=CascadeType.ALL)
 	@JsonIgnore
 	private List<Booking> bookings;

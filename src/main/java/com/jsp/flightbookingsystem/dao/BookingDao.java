@@ -25,12 +25,8 @@ public class BookingDao {
 	public List<Booking> getAllBookings() {
 		return bookingRepository.findAll();
 	}
-	public Booking getBookingById(Integer id) {
-		Optional<Booking> opt=bookingRepository.findById(id);
-		if(opt.isPresent()) 
-			return opt.get();
-		else
-	        throw new IdNotFoundException("ID of the given flight does not exist in the database.");
+	public Optional<Booking> getBookingById(Integer id) {
+		return bookingRepository.findById(id);
 	}
 	public List<Booking> getBookingByFlight(Integer flightId) {
 		return bookingRepository.findAllByFlightId(flightId);
@@ -44,23 +40,14 @@ public class BookingDao {
 	public Booking updateBooking(Booking booking) {
 		return bookingRepository.save(booking);
 	}
-	public Optional<Booking> deleteBooking(Integer id) {
-		Optional<Booking> opt=bookingRepository.findById(id);
-		if(opt.isPresent())
-			bookingRepository.delete(opt.get());
-		return opt;
+	public void deleteBooking(Integer id) {
+			bookingRepository.deleteById(id);;
 	}
-	public List<Passenger> getAllPassengersInABooking(Integer bookingId){
-	    Booking booking=bookingRepository.findById(bookingId).orElse(null);
-		if(booking==null)
-			return null;
-		return booking.getPassengers();
+	public Optional<Booking> getAllPassengersInABooking(Integer bookingId){
+	    return bookingRepository.findById(bookingId);
 	}
-	public Payment getPaymentDetails(Integer bookingId) {
-		Booking booking=bookingRepository.findById(bookingId).orElse(null);
-		if(booking==null)
-			return null;
-		return booking.getPayment();
+	public Optional<Booking> getPaymentDetails(Integer bookingId) {
+		return bookingRepository.findById(bookingId);
 	}
 }
 
