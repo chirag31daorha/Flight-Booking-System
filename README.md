@@ -1,12 +1,11 @@
 # ✈️ Flight Booking System
 
-A full-stack flight booking platform built with **Spring Boot** (backend) and **React** (frontend). The system covers complete CRUD operations, complex entity relationships, Enum-based status tracking, custom repository queries using Spring Data JPA, and **JWT-based Authentication & Authorization**.
+A backend REST API application built with Spring Boot that simulates a real-world flight booking platform. This project covers complete CRUD operations, complex entity relationships, Enum-based status tracking, custom repository queries using Spring Data JPA and Hibernate, and **JWT-based Authentication & Authorization**.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Backend
 - **Java** (Spring Boot)
 - **Spring Security** (Authentication & Authorization)
 - **JWT** (JSON Web Tokens)
@@ -14,12 +13,6 @@ A full-stack flight booking platform built with **Spring Boot** (backend) and **
 - **PostgreSQL**
 - **REST APIs**
 - **Maven**
-
-### Frontend
-- **React**
-- **Vite**
-
-### Tools
 - **Postman** (for API testing)
 
 ---
@@ -29,7 +22,7 @@ A full-stack flight booking platform built with **Spring Boot** (backend) and **
 The system uses **JWT (JSON Web Token)** based stateless authentication.
 
 ### How it works
-1. User registers or logs in via `/auth/register` or `/auth/login`
+1. User registers or logs in via `/user/register` or `/user/login`
 2. Server validates credentials and returns a **JWT token**
 3. Client sends the token in the `Authorization` header for every protected request
 4. `JwtFilter` intercepts each request and validates the token
@@ -47,23 +40,9 @@ The system uses **JWT (JSON Web Token)** based stateless authentication.
 | `UserDao` | Loads user details for authentication |
 | `UserRepository` | Database layer for user data |
 
-### Roles
-
-| Role | Access |
-|---|---|
-| `ROLE_USER` | Can view flights, create bookings, make payments |
-| `ROLE_ADMIN` | Full access — manage flights, bookings, passengers, payments |
-
-### Auth Endpoints
-
-| Method | Endpoint | Description | Access |
-|---|---|---|---|
-| POST | `/auth/register` | Register a new user | Public |
-| POST | `/auth/login` | Login and get JWT token | Public |
-
 ### How to use the token
 
-After login, copy the token from the response and add it to your request headers:
+After login, copy the token from the response and add it to every request header:
 ```
 Authorization: Bearer <your-jwt-token>
 ```
@@ -134,62 +113,62 @@ Authorization: Bearer <your-jwt-token>
 
 ---
 
-## 🔗 API Overview (32 REST Endpoints)
+## 🔗 API Overview
 
-> All endpoints except `/auth/register` and `/auth/login` require a valid JWT token in the `Authorization` header.
+> All endpoints except `/user/register` and `/user/login` require a valid JWT token in the `Authorization` header.
 
-### 🔐 Auth APIs (2)
+### 🔐 User APIs (2)
 | Method | Endpoint | Description | Access |
 |---|---|---|---|
-| POST | `/auth/register` | Register new user | Public |
-| POST | `/auth/login` | Login and receive JWT | Public |
+| POST | `/user/register` | Register a new user | Public |
+| POST | `/user/login` | Login and receive JWT token | Public |
 
 ### ✈️ Flight APIs (7)
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/flights` | Add a new flight |
-| GET | `/flights` | Get all flights |
-| GET | `/flights/{id}` | Get flight by ID |
-| GET | `/flights/source-destination` | Get flights by source and destination |
-| GET | `/flights/airline` | Get flights by airline |
-| PUT | `/flights/{id}` | Update flight details |
-| DELETE | `/flights/{id}` | Delete a flight |
+| POST | `/flight/addFlight` | Add a new flight |
+| GET | `/flight/getAllFlight` | Get all flights |
+| GET | `/flight/getById/{id}` | Get flight by ID |
+| GET | `/flight/{source}/{destination}` | Get flight by source and destination |
+| GET | `/flight/{airline}` | Get flights by airline |
+| PUT | `/flight/updateFlight` | Update flight details |
+| DELETE | `/flight/deleteFlight/{id}` | Delete a flight |
 
 ### 📋 Booking APIs (10)
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/bookings` | Create a new booking |
-| GET | `/bookings` | Get all bookings |
-| GET | `/bookings/{id}` | Get booking by ID |
-| GET | `/bookings/flight/{id}` | Get bookings by flight |
-| GET | `/bookings/date` | Get bookings by date |
-| GET | `/bookings/status/{status}` | Get bookings by status |
-| GET | `/bookings/{id}/passengers` | Get all passengers in a booking |
-| GET | `/bookings/{id}/payment` | Get payment details of a booking |
-| PUT | `/bookings/{id}/status` | Update booking status |
-| DELETE | `/bookings/{id}` | Delete a booking |
+| POST | `/booking/create` | Create a new booking |
+| GET | `/booking/getAll` | Get all bookings |
+| GET | `/booking/getById/{id}` | Get booking by ID |
+| GET | `/booking/getByFlight/{flightId}` | Get bookings by flight |
+| GET | `/booking/getByDate/{bookingDate}` | Get bookings by date |
+| GET | `/booking/getByStatus/{status}` | Get bookings by status |
+| PUT | `/booking/updateBooking` | Update booking details |
+| DELETE | `/booking/deleteBooking/{id}` | Delete a booking |
+| GET | `/booking/getAllPassengers/{bookingId}` | Get all passengers in a booking |
+| GET | `/booking/getPayment/{bookingId}` | Get payment details of a booking |
 
 ### 👤 Passenger APIs (6)
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/passengers` | Add a passenger |
-| GET | `/passengers` | Get all passengers |
-| GET | `/passengers/{id}` | Get passenger by ID |
-| GET | `/passengers/contact/{no}` | Get passenger by contact number |
-| PUT | `/passengers/{id}` | Update passenger info |
-| GET | `/passengers/flight/{id}` | Get passengers by flight |
+| POST | `/passenger/add?bookingId={id}` | Add a passenger to a booking |
+| GET | `/passenger/getAll` | Get all passengers |
+| GET | `/passenger/getById/{id}` | Get passenger by ID |
+| GET | `/passenger/getByNumber/{contactNumber}` | Get passenger by contact number |
+| POST | `/passenger/update` | Update passenger info |
+| GET | `/passenger/{flightId}` | Get passengers by flight |
 
 ### 💳 Payment APIs (8)
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/payments` | Record a payment |
-| GET | `/payments` | Get all payments |
-| GET | `/payments/{id}` | Get payment by ID |
-| GET | `/payments/status/{status}` | Get payments by status |
-| GET | `/payments/mode/{mode}` | Get payments by mode of transaction |
-| GET | `/payments/booking/{id}` | Get payment by booking |
-| PUT | `/payments/{id}/status` | Update payment status |
-| GET | `/payments/amount` | Fetch payments where amount is greater than a particular value |
+| POST | `/payment/record?bookingId={id}` | Record a payment for a booking |
+| GET | `/payment/getAll` | Get all payments |
+| GET | `/payment/getById/{paymentId}` | Get payment by ID |
+| GET | `/payment/status/{status}` | Get payments by status |
+| GET | `/payment/{transaction}` | Get payments by mode of transaction |
+| GET | `/payment/getByBooking/{bookingId}` | Get payment by booking |
+| PUT | `/payment/{paymentId}/{status}` | Update payment status |
+| GET | `/payment/amount/{amount}` | Get payments where amount is greater than given value |
 
 ---
 
@@ -199,9 +178,8 @@ Authorization: Bearer <your-jwt-token>
 - Java 17+
 - PostgreSQL
 - Maven
-- Node.js & npm (for frontend)
 
-### Backend Setup
+### Steps
 
 1. Clone the repository
 ```bash
@@ -226,37 +204,20 @@ jwt.secret=your_jwt_secret_key
 jwt.expiration=86400000
 ```
 
-4. Run the backend
+4. Run the application
 ```bash
 mvn spring-boot:run
 ```
 
-### Frontend Setup
-
-1. Clone the frontend repository
-```bash
-git clone https://github.com/chirag31daorha/flight-booking-frontend.git
-```
-
-2. Install dependencies
-```bash
-npm install
-```
-
-3. Start the development server
-```bash
-npm run dev
-```
-
-4. Open `http://localhost:5173` in your browser
+5. Test APIs using Postman on `http://localhost:8080`
 
 ---
 
 ## 🔑 Testing APIs with Postman
 
-1. Register a user — `POST /auth/register`
-2. Login — `POST /auth/login` — copy the token from response
-3. In Postman, go to **Authorization** tab → select **Bearer Token** → paste the token
+1. Register — `POST /user/register`
+2. Login — `POST /user/login` — copy the token from response
+3. In Postman go to **Authorization** tab → select **Bearer Token** → paste the token
 4. Now call any protected endpoint
 
 ---
