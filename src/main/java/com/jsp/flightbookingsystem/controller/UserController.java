@@ -13,7 +13,6 @@ import com.jsp.flightbookingsystem.dto.ResponseStructure;
 import com.jsp.flightbookingsystem.entity.User;
 import com.jsp.flightbookingsystem.service.UserService;
 
-
 @RestController
 @RequestMapping("/user")
 public class UserController {
